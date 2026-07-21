@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RabssCore AI — The AI Employee That Runs Your Business</title>
+<meta name="description" content="BusinessOS AI combines CRM, Sales, Finance, Inventory, HR, Projects and AI into one intelligent operating system built for modern businesses.">
+
+<!-- Google Font: Inter -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+
+<!-- Bootstrap 5.3 -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<!-- AOS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+
+<style>
+:root{
+  --primary:#4F46E5;
+  --primary-light:#818CF8;
+  --accent:#06B6D4;
+  --bg:#0B1120;
+  --bg-alt:#0E1526;
+  --card:#111827;
+  --card-hover:#151F32;
+  --border:rgba(255,255,255,.08);
+  --text:#E5E9F2;
+  --text-dim:#8B96AB;
+  --text-faint:#5C6780;
+  --success:#22C55E;
+  --danger:#F87171;
+  --font-display:'Space Grotesk', 'Inter', sans-serif;
+  --font-body:'Inter', sans-serif;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font-body);
+  overflow-x:hidden;
+  position:relative;
+}
+::selection{background:var(--primary);color:#fff;}
+::-webkit-scrollbar{width:10px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:linear-gradient(var(--primary),var(--accent));border-radius:10px;}
+
+h1,h2,h3,h4,h5,.font-display{font-family:var(--font-display);letter-spacing:-0.02em;}
+.text-dim{color:var(--text-dim)!important;}
+.text-faint{color:var(--text-faint)!important;}
+
+a{text-decoration:none;color:inherit;}
+
+/* ============ LOADING SCREEN ============ */
+#loader{
+  position:fixed;inset:0;z-index:9999;
+  background:var(--bg);
+  display:flex;align-items:center;justify-content:center;flex-direction:column;
+  transition:opacity .6s ease, visibility .6s ease;
+}
+#loader.hide{opacity:0;visibility:hidden;}
+.loader-mark{
+  width:64px;height:64px;border-radius:16px;
+  background:linear-gradient(135deg,var(--primary),var(--accent));
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-display);font-weight:700;font-size:26px;color:#fff;
+  animation:pulseMark 1.4s ease-in-out infinite;
+  box-shadow:0 0 60px rgba(79,70,229,.6);
+}
+@keyframes pulseMark{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
+.loader-bar{width:180px;height:2px;background:rgba(255,255,255,.08);margin-top:26px;border-radius:2px;overflow:hidden;}
+.loader-bar span{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--primary),var(--accent));animation:loadBar 1.1s ease forwards;}
+@keyframes loadBar{to{width:100%;}}
+.loader-text{margin-top:14px;font-size:12px;letter-spacing:.2em;color:var(--text-faint);text-transform:uppercase;}
+
+/* ============ SCROLL PROGRESS ============ */
+#scrollProgress{
+  position:fixed;top:0;left:0;height:3px;
+  background:linear-gradient(90deg,var(--primary),var(--accent));
+  z-index:9998;width:0%;
+  box-shadow:0 0 10px rgba(6,182,212,.7);
+}
+
+/* ============ CURSOR GLOW ============ */
+#cursorGlow{
+  position:fixed;width:420px;height:420px;border-radius:50%;
+  background:radial-gradient(circle,rgba(79,70,229,.14) 0%,rgba(6,182,212,.05) 40%,transparent 70%);
+  pointer-events:none;z-index:1;transform:translate(-50%,-50%);
+  transition:opacity .3s ease;
+}
+@media (max-width:991px){#cursorGlow{display:none;}}
+
+/* ============ AURORA BACKGROUND ============ */
+.aurora-bg{
+  position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;
+}
+.aurora-blob{
+  position:absolute;border-radius:50%;filter:blur(110px);opacity:.35;
+}
+.blob1{width:600px;height:600px;background:var(--primary);top:-200px;left:-150px;animation:drift1 22s ease-in-out infinite;}
+.blob2{width:500px;height:500px;background:var(--accent);top:20%;right:-180px;animation:drift2 26s ease-in-out infinite;}
+.blob3{width:450px;height:450px;background:#7C3AED;bottom:-150px;left:30%;animation:drift3 24s ease-in-out infinite;}
+@keyframes drift1{0%,100%{transform:translate(0,0);}50%{transform:translate(80px,60px);}}
+@keyframes drift2{0%,100%{transform:translate(0,0);}50%{transform:translate(-60px,80px);}}
+@keyframes drift3{0%,100%{transform:translate(0,0);}50%{transform:translate(60px,-70px);}}
+
+.grid-overlay{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:56px 56px;
+  mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,#000 40%,transparent 100%);
+}
+
+/* particles */
+#particles{position:fixed;inset:0;z-index:0;pointer-events:none;}
+.particle{position:absolute;border-radius:50%;background:var(--accent);opacity:.5;animation:floatParticle linear infinite;}
+@keyframes floatParticle{
+  0%{transform:translateY(0) translateX(0);opacity:0;}
+  10%{opacity:.6;}
+  90%{opacity:.4;}
+  100%{transform:translateY(-1200px) translateX(40px);opacity:0;}
+}
+
+section{position:relative;z-index:1;}
+
+/* ============ NAVBAR ============ */
+.navbar-glass{
+  position:fixed;top:0;left:0;right:0;z-index:1000;
+  padding:16px 0;
+  transition:all .35s ease;
+  border-bottom:1px solid transparent;
+}
+.navbar-glass.scrolled{
+  background:rgba(11,17,32,.75);
+  backdrop-filter:blur(20px) saturate(160%);
+  -webkit-backdrop-filter:blur(20px) saturate(160%);
+  border-bottom:1px solid var(--border);
+  padding:10px 0;
+}
+.brand-mark{
+  width:36px;height:36px;border-radius:10px;
+  background:linear-gradient(135deg,var(--primary),var(--accent));
+  display:inline-flex;align-items:center;justify-content:center;
+  font-family:var(--font-display);font-weight:700;color:#fff;font-size:15px;
+  box-shadow:0 4px 20px rgba(79,70,229,.5);
+}
+.brand-name{font-family:var(--font-display);font-weight:700;font-size:19px;letter-spacing:-0.01em;}
+.nav-link-custom{
+  color:var(--text-dim)!important;font-size:14.5px;font-weight:500;
+  padding:8px 14px!important;border-radius:8px;transition:all .25s ease;
+  position:relative;
+}
+.nav-link-custom:hover{color:var(--text)!important;background:rgba(255,255,255,.04);}
+.btn-ghost{
+  color:var(--text)!important;font-weight:500;font-size:14.5px;padding:9px 18px;
+  border:1px solid var(--border);border-radius:10px;transition:all .25s ease;background:transparent;
+}
+.btn-ghost:hover{border-color:rgba(255,255,255,.25);background:rgba(255,255,255,.04);}
+.btn-primary-glow{
+  background:linear-gradient(135deg,var(--primary),var(--accent));
+  color:#fff;font-weight:600;font-size:14.5px;padding:10px 22px;border-radius:10px;
+  border:none;position:relative;overflow:hidden;transition:all .3s ease;
+  box-shadow:0 4px 24px rgba(79,70,229,.4);
+}
+.btn-primary-glow:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(79,70,229,.6);color:#fff;}
+.btn-primary-glow::after{
+  content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;
+  background:linear-gradient(120deg,transparent,rgba(255,255,255,.35),transparent);
+  transition:left .6s ease;
+}
+.btn-primary-glow:hover::after{left:100%;}
+
+.btn-outline-glow{
+  border:1px solid rgba(255,255,255,.16);color:var(--text);font-weight:600;font-size:14.5px;
+  padding:10px 22px;border-radius:10px;background:rgba(255,255,255,.03);
+  backdrop-filter:blur(10px);transition:all .3s ease;
+}
+.btn-outline-glow:hover{border-color:var(--accent);color:#fff;background:rgba(6,182,212,.08);transform:translateY(-2px);}
+
+/* ============ HERO ============ */
+.hero{padding:170px 0 110px;position:relative;}
+.eyebrow-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(79,70,229,.12);border:1px solid rgba(79,70,229,.3);
+  color:var(--primary-light);font-size:13px;font-weight:600;
+  padding:7px 16px;border-radius:100px;margin-bottom:26px;
+}
+.eyebrow-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulseDot 1.6s ease-in-out infinite;}
+@keyframes pulseDot{0%,100%{opacity:.4;}50%{opacity:1;}}
+
+.hero-title{
+  font-size:clamp(2.6rem,5.5vw,4.6rem);
+  font-weight:700;line-height:1.06;margin-bottom:26px;
+}
+.gradient-text{
+  background:linear-gradient(100deg,#fff 20%,var(--primary-light) 55%,var(--accent) 90%);
+  background-size:200% auto;
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  animation:gradientShift 6s ease infinite;
+}
+@keyframes gradientShift{0%{background-position:0% center;}50%{background-position:100% center;}100%{background-position:0% center;}}
+.hero-sub{font-size:1.15rem;color:var(--text-dim);max-width:600px;line-height:1.7;margin-bottom:38px;}
+
+.hero-stats{display:flex;gap:40px;margin-top:56px;flex-wrap:wrap;}
+.hero-stat .num{font-family:var(--font-display);font-size:2rem;font-weight:700;}
+.hero-stat .lbl{font-size:13px;color:var(--text-faint);margin-top:2px;}
+
+/* Hero dashboard mockup */
+.dash-wrap{position:relative;perspective:1400px;}
+.dash-card{
+  background:linear-gradient(180deg,rgba(17,24,39,.9),rgba(17,24,39,.72));
+  border:1px solid var(--border);
+  border-radius:20px;padding:22px;
+  backdrop-filter:blur(24px);
+  box-shadow:0 30px 90px -20px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.02) inset;
+  transform:rotateY(-8deg) rotateX(4deg);
+  transition:transform .5s ease;
+}
+.dash-wrap:hover .dash-card{transform:rotateY(-3deg) rotateX(1deg);}
+.dash-topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.dash-dots span{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:6px;}
+.dash-kpi{
+  background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:14px;padding:14px 16px;
+}
+.dash-kpi .lbl{font-size:12px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.05em;}
+.dash-kpi .val{font-family:var(--font-display);font-size:1.4rem;font-weight:700;margin-top:4px;}
+.dash-kpi .delta{font-size:12px;font-weight:600;}
+.up{color:var(--success);}
+.down{color:var(--danger);}
+
+.floating-card{
+  position:absolute;background:rgba(17,24,39,.85);border:1px solid var(--border);
+  border-radius:16px;padding:14px 16px;backdrop-filter:blur(20px);
+  box-shadow:0 20px 50px -10px rgba(0,0,0,.6);
+  animation:floatY 5s ease-in-out infinite;
+}
+@keyframes floatY{0%,100%{transform:translateY(0);}50%{transform:translateY(-14px);}}
+.fc-1{top:-30px;right:-30px;animation-delay:0s;}
+.fc-2{bottom:20px;left:-40px;animation-delay:1.2s;}
+.fc-3{bottom:-25px;right:40px;animation-delay:2s;}
+@media (max-width:991px){.floating-card{display:none;}.dash-card{transform:none;}}
+
+/* ============ SECTION HEADER ============ */
+.section-pad{padding:110px 0;}
+.section-eyebrow{
+  display:inline-block;font-size:12.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:14px;
+}
+.section-title{font-size:clamp(1.9rem,3.4vw,2.7rem);font-weight:700;margin-bottom:18px;}
+.section-sub{color:var(--text-dim);font-size:1.05rem;max-width:640px;line-height:1.7;}
+
+/* ============ TRUSTED BY ============ */
+.logo-strip{
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:34px;
+  opacity:.55;filter:grayscale(1);
+}
+.logo-strip .logo-item{font-family:var(--font-display);font-weight:700;font-size:1.2rem;color:var(--text-faint);letter-spacing:.02em;transition:all .3s ease;}
+.logo-strip .logo-item:hover{opacity:1;filter:none;color:var(--text);}
+
+/* ============ WHY CHOOSE ============ */
+.compare-card{
+  border-radius:22px;padding:38px 32px;height:100%;
+  border:1px solid var(--border);
+}
+.compare-card.old{background:rgba(248,113,113,.04);}
+.compare-card.new{
+  background:linear-gradient(160deg,rgba(79,70,229,.12),rgba(6,182,212,.05));
+  border:1px solid rgba(79,70,229,.35);
+  box-shadow:0 0 60px -15px rgba(79,70,229,.35);
+}
+.compare-list li{display:flex;align-items:flex-start;gap:12px;padding:11px 0;font-size:15px;color:var(--text-dim);border-bottom:1px dashed rgba(255,255,255,.06);}
+.compare-list li:last-child{border-bottom:none;}
+.compare-list i{margin-top:3px;}
+
+/* ============ FEATURE CARDS ============ */
+.feature-card{
+  background:var(--card);border:1px solid var(--border);border-radius:18px;padding:28px 24px;height:100%;
+  transition:all .35s cubic-bezier(.2,.8,.2,1);position:relative;overflow:hidden;
+}
+.feature-card::before{
+  content:'';position:absolute;inset:0;border-radius:18px;padding:1px;
+  background:linear-gradient(135deg,var(--primary),transparent 40%,var(--accent));
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;
+  opacity:0;transition:opacity .35s ease;
+}
+.feature-card:hover{transform:translateY(-6px);background:var(--card-hover);box-shadow:0 20px 50px -20px rgba(79,70,229,.4);}
+.feature-card:hover::before{opacity:1;}
+.feature-icon{
+  width:48px;height:48px;border-radius:12px;
+  background:linear-gradient(135deg,rgba(79,70,229,.18),rgba(6,182,212,.14));
+  border:1px solid rgba(79,70,229,.25);
+  display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--accent);margin-bottom:18px;
+  transition:transform .35s ease;
+}
+.feature-card:hover .feature-icon{transform:scale(1.1) rotate(-4deg);}
+.feature-card h5{font-size:16.5px;font-weight:600;margin-bottom:8px;}
+.feature-card p{font-size:14px;color:var(--text-dim);margin:0;line-height:1.65;}
+
+/* ============ AI COPILOT ============ */
+.copilot-wrap{
+  background:linear-gradient(160deg,rgba(17,24,39,.9),rgba(11,17,32,.9));
+  border:1px solid var(--border);border-radius:26px;padding:0;overflow:hidden;
+  box-shadow:0 40px 100px -30px rgba(0,0,0,.7);
+}
+.copilot-head{padding:20px 26px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;}
+.copilot-body{padding:26px;min-height:380px;display:flex;flex-direction:column;gap:16px;}
+.chat-bubble{max-width:78%;padding:13px 17px;border-radius:16px;font-size:14.5px;line-height:1.55;animation:bubbleIn .5s ease both;}
+@keyframes bubbleIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.chat-user{align-self:flex-end;background:linear-gradient(135deg,var(--primary),#6D5EF0);color:#fff;border-bottom-right-radius:4px;}
+.chat-ai{align-self:flex-start;background:rgba(255,255,255,.04);border:1px solid var(--border);border-bottom-left-radius:4px;}
+.chat-ai .step{display:flex;align-items:center;gap:8px;padding:3px 0;color:var(--text-dim);font-size:13.5px;}
+.chat-ai .step i{color:var(--success);font-size:12px;}
+.copilot-input{
+  margin:0 26px 26px;display:flex;gap:10px;background:rgba(255,255,255,.03);
+  border:1px solid var(--border);border-radius:14px;padding:10px 10px 10px 18px;align-items:center;
+}
+.copilot-input input{background:transparent;border:none;outline:none;color:var(--text);flex:1;font-size:14px;}
+.copilot-input input::placeholder{color:var(--text-faint);}
+.copilot-send{
+  width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--primary),var(--accent));
+  border:none;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.suggest-chip{
+  border:1px solid var(--border);background:rgba(255,255,255,.02);border-radius:100px;
+  padding:8px 16px;font-size:13px;color:var(--text-dim);cursor:pointer;transition:all .25s ease;
+}
+.suggest-chip:hover{border-color:var(--accent);color:var(--text);background:rgba(6,182,212,.06);}
+
+/* ============ CUSTOMIZATION ============ */
+.industry-card{
+  background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px 18px;text-align:center;
+  transition:all .3s ease;height:100%;
+}
+.industry-card:hover{transform:translateY(-5px);border-color:rgba(6,182,212,.4);background:var(--card-hover);box-shadow:0 15px 40px -15px rgba(6,182,212,.35);}
+.industry-card i{font-size:26px;color:var(--accent);margin-bottom:12px;display:block;}
+.industry-card span{font-size:14px;font-weight:500;color:var(--text-dim);}
+.industry-card:hover span{color:var(--text);}
+
+.divider-fade{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:0 auto;}
+
+/* ============ PRICING ============ */
+.price-card{
+  background:var(--card);border:1px solid var(--border);border-radius:22px;padding:34px 28px;height:100%;
+  transition:all .35s ease;position:relative;
+}
+.price-card:hover{transform:translateY(-8px);box-shadow:0 30px 70px -25px rgba(0,0,0,.6);}
+.price-card.popular{
+  border:1px solid var(--primary);background:linear-gradient(160deg,rgba(79,70,229,.15),rgba(17,24,39,1));
+  box-shadow:0 0 70px -15px rgba(79,70,229,.5);
+}
+.popular-badge{
+  position:absolute;top:-13px;left:50%;transform:translateX(-50%);
+  background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;font-size:11.5px;font-weight:700;
+  padding:6px 16px;border-radius:100px;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;
+}
+.price-amt{font-family:var(--font-display);font-size:2.6rem;font-weight:700;}
+.price-amt small{font-size:14px;font-weight:500;color:var(--text-faint);}
+.price-feat{list-style:none;padding:0;margin:26px 0 30px;}
+.price-feat li{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:14.5px;color:var(--text-dim);}
+.price-feat i{color:var(--accent);font-size:13px;width:16px;}
+
+.custom-dev-card{
+  background:var(--card);border:1px solid var(--border);border-radius:18px;padding:28px;height:100%;text-align:center;
+}
+.custom-dev-card .badge-num{
+  width:42px;height:42px;border-radius:12px;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;
+  background:rgba(79,70,229,.14);color:var(--primary-light);font-weight:700;font-family:var(--font-display);
+}
+
+/* ============ AUTOMATION WORKFLOW ============ */
+.workflow-track{position:relative;padding-left:36px;}
+.workflow-track::before{
+  content:'';position:absolute;left:15px;top:8px;bottom:8px;width:2px;
+  background:linear-gradient(180deg,var(--primary),var(--accent));
+  opacity:.35;
+}
+.workflow-step{position:relative;padding-bottom:34px;}
+.workflow-step:last-child{padding-bottom:0;}
+.workflow-step::before{
+  content:'';position:absolute;left:-36px;top:2px;width:14px;height:14px;border-radius:50%;
+  background:var(--bg);border:2px solid var(--accent);box-shadow:0 0 0 4px rgba(6,182,212,.15);
+}
+.workflow-step.active::before{background:var(--accent);animation:pulseDot 1.5s ease-in-out infinite;}
+.workflow-step h6{font-weight:600;margin-bottom:4px;}
+.workflow-step p{color:var(--text-faint);font-size:13.5px;margin:0;}
+
+/* ============ TESTIMONIALS ============ */
+.testi-card{
+  background:var(--card);border:1px solid var(--border);border-radius:18px;padding:28px;height:100%;
+}
+.testi-stars i{color:#FBBF24;font-size:13px;}
+.testi-quote{font-size:14.5px;color:var(--text-dim);line-height:1.7;margin:16px 0 22px;}
+.testi-avatar{
+  width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent));
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff;
+}
+
+/* ============ FAQ ============ */
+.accordion-item{background:var(--card)!important;border:1px solid var(--border)!important;border-radius:14px!important;margin-bottom:12px;overflow:hidden;}
+.accordion-button{
+  background:var(--card)!important;color:var(--text)!important;font-weight:600;font-size:15px;
+  box-shadow:none!important;padding:20px 24px;
+}
+.accordion-button:not(.collapsed){color:var(--accent)!important;}
+.accordion-button::after{filter:invert(1) brightness(2);}
+.accordion-body{color:var(--text-dim);font-size:14.5px;line-height:1.7;padding:0 24px 22px;}
+
+/* ============ CTA ============ */
+.cta-banner{
+  border-radius:32px;padding:80px 40px;text-align:center;position:relative;overflow:hidden;
+  background:linear-gradient(140deg,rgba(79,70,229,.25),rgba(6,182,212,.12));
+  border:1px solid rgba(79,70,229,.3);
+}
+.cta-banner::before{
+  content:'';position:absolute;width:500px;height:500px;background:var(--primary);border-radius:50%;
+  filter:blur(120px);opacity:.25;top:-200px;left:-100px;
+}
+
+/* ============ FOOTER ============ */
+footer{border-top:1px solid var(--border);padding:70px 0 30px;}
+.footer-title{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text);margin-bottom:18px;}
+.footer-links li{margin-bottom:11px;}
+.footer-links a{color:var(--text-faint);font-size:14px;transition:color .25s ease;}
+.footer-links a:hover{color:var(--accent);}
+.social-icon{
+  width:38px;height:38px;border-radius:10px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
+  color:var(--text-dim);transition:all .25s ease;
+}
+.social-icon:hover{background:var(--primary);color:#fff;border-color:var(--primary);transform:translateY(-3px);}
+.newsletter-input{
+  background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px 0 0 12px;
+  color:var(--text);padding:12px 16px;font-size:14px;
+}
+.newsletter-input:focus{outline:none;border-color:var(--accent);}
+
+/* ============ MISC ============ */
+.glow-divider{height:1px;background:linear-gradient(90deg,transparent,var(--primary),var(--accent),transparent);opacity:.4;margin:0;}
+.counter{font-family:var(--font-display);}
+[data-aos]{transition-duration:.7s!important;}
+
+@media (max-width:767px){
+  .hero{padding:130px 0 70px;}
+  .section-pad{padding:70px 0;}
+  .hero-stats{gap:26px;}
+  .cta-banner{padding:50px 22px;border-radius:22px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ LOADER ============ -->
+<div id="loader">
+  <div class="loader-mark"><img src="assets/images/logo.png" alt="RabssCore AI Logo"></div>
+  <div class="loader-bar"><span></span></div>
+  <div class="loader-text">Booting your AI operating system</div>
+</div>
+
+<!-- ============ SCROLL PROGRESS ============ -->
+<div id="scrollProgress"></div>
+<div id="cursorGlow"></div>
+
+<!-- ============ BACKGROUND LAYERS ============ -->
+<div class="aurora-bg">
+  <div class="aurora-blob blob1"></div>
+  <div class="aurora-blob blob2"></div>
+  <div class="aurora-blob blob3"></div>
+</div>
+<div class="grid-overlay"></div>
+<div id="particles"></div>
+
+<!-- ============ NAVBAR ============ -->
+<nav class="navbar navbar-expand-lg navbar-glass" id="mainNav">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center gap-2" href="#home">
+      <span class="brand-mark"><img src="assets/images/logo.png" alt="RabssCore AI Logo"></span>
+      <span class="brand-name">RabssCore <span style="color:var(--accent)">AI</span></span>
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu" style="border-color:var(--border)">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse justify-content-center" id="navMenu">
+      <ul class="navbar-nav gap-1">
+        <li class="nav-item"><a class="nav-link nav-link-custom" href="#home">Home</a></li>
+        <li class="nav-item"><a class="nav-link nav-link-custom" href="#features">Features</a></li>
+        <li class="nav-item"><a class="nav-link nav-link-custom" href="#solutions">Solutions</a></li>
+        <li class="nav-item"><a class="nav-link nav-link-custom" href="#pricing">Pricing</a></li>
+        <li class="nav-item"><a class="nav-link nav-link-custom" href="#customization">Customization</a></li>
+        <li class="nav-item"><a class="nav-link nav-link-custom" href="#copilot">AI Copilot</a></li>
+        <li class="nav-item"><a class="nav-link nav-link-custom" href="#testimonials">Testimonials</a></li>
+        <li class="nav-item"><a class="nav-link nav-link-custom" href="#faq">FAQ</a></li>
+        <li class="nav-item"><a class="nav-link nav-link-custom" href="#contact">Contact</a></li>
+      </ul>
+    </div>
+    <div class="d-none d-lg-flex align-items-center gap-2">
+      <a href="#login" class="btn-ghost">Login</a>
+      <a href="#trial" class="btn-primary-glow">Start Free Trial</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="home">
+  <div class="container">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-6" data-aos="fade-up">
+        <div class="eyebrow-badge"><span class="dot"></span> Now with Predictive AI Forecasting</div>
+        <h1 class="hero-title">The AI Employee That <span class="gradient-text">Runs Your Business.</span></h1>
+        <p class="hero-sub">RabssCore AI combines CRM, Sales, Finance, Inventory, HR, Projects and AI into one intelligent operating system built for modern businesses.</p>
+        <div class="d-flex flex-wrap gap-3">
+          <a href="#trial" class="btn-primary-glow">Start Free Trial <i class="fa-solid fa-arrow-right ms-1"></i></a>
+          <a href="#demo" class="btn-outline-glow"><i class="fa-solid fa-circle-play me-2"></i>Book Live Demo</a>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat"><div class="num"><span class="counter" data-target="4200">0</span>+</div><div class="lbl">Businesses Automated</div></div>
+          <div class="hero-stat"><div class="num"><span class="counter" data-target="98">0</span>%</div><div class="lbl">Task Accuracy</div></div>
+          <div class="hero-stat"><div class="num"><span class="counter" data-target="12">0</span>M+</div><div class="lbl">AI Actions / Month</div></div>
+        </div>
+      </div>
+
+      <div class="col-lg-6" data-aos="fade-left" data-aos-delay="150">
+        <div class="dash-wrap">
+          <div class="dash-card">
+            <div class="dash-topbar">
+              <div class="dash-dots"><span style="background:#F87171"></span><span style="background:#FBBF24"></span><span style="background:#22C55E"></span></div>
+              <span class="text-faint" style="font-size:12px;"><i class="fa-solid fa-shield-halved me-1"></i>Live · Secure</span>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-6">
+                <div class="dash-kpi">
+                  <div class="lbl">Revenue (MTD)</div>
+                  <div class="val">NPR 18.4M</div>
+                  <div class="delta up"><i class="fa-solid fa-arrow-trend-up"></i> +24.6%</div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="dash-kpi">
+                  <div class="lbl">Net Profit</div>
+                  <div class="val">NPR 6.1M</div>
+                  <div class="delta up"><i class="fa-solid fa-arrow-trend-up"></i> +11.2%</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="dash-kpi mb-3">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="lbl">Revenue Trend</span>
+                <span class="text-faint" style="font-size:11px;">Last 6 months</span>
+              </div>
+              <canvas id="heroChart" height="90"></canvas>
+            </div>
+
+            <div class="dash-kpi">
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <i class="fa-solid fa-sparkles" style="color:var(--accent);font-size:13px;"></i>
+                <span class="lbl">AI Insight</span>
+              </div>
+              <p style="font-size:13px;color:var(--text-dim);margin:0;">Sales in Kathmandu region will grow 18% next month. Reorder stock for Product SKU-2291 before the 25th.</p>
+            </div>
+          </div>
+
+          <div class="floating-card fc-1">
+            <div class="d-flex align-items-center gap-2">
+              <i class="fa-solid fa-bell" style="color:var(--accent)"></i>
+              <div>
+                <div style="font-size:12.5px;font-weight:600;">3 Tasks Due Today</div>
+                <div style="font-size:11px;color:var(--text-faint);">Auto-assigned by AI</div>
+              </div>
+            </div>
+          </div>
+          <div class="floating-card fc-2">
+            <div style="font-size:12px;color:var(--text-faint);">Task Completion</div>
+            <div style="font-size:18px;font-weight:700;font-family:var(--font-display);color:var(--success);">94%</div>
+          </div>
+          <div class="floating-card fc-3">
+            <i class="fa-solid fa-comments" style="color:var(--primary-light)"></i>
+            <span style="font-size:12px;margin-left:6px;">AI Chat Active</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TRUSTED BY ============ -->
+<section class="section-pad pt-0" data-aos="fade-up">
+  <div class="container">
+    <p class="text-center text-faint mb-4" style="font-size:13px;letter-spacing:.1em;text-transform:uppercase;">Trusted by growing teams across industries</p>
+    <div class="logo-strip">
+      <span class="logo-item"><i class="fa-solid fa-mountain-sun me-2"></i>Everest Traders</span>
+      <span class="logo-item"><i class="fa-solid fa-building me-2"></i>Himal Group</span>
+      <span class="logo-item"><i class="fa-solid fa-shop me-2"></i>Sagarmatha Retail</span>
+      <span class="logo-item"><i class="fa-solid fa-industry me-2"></i>Kathford Mfg</span>
+      <span class="logo-item"><i class="fa-solid fa-hospital me-2"></i>Annapurna Health</span>
+      <span class="logo-item"><i class="fa-solid fa-plane me-2"></i>Lumbini Travels</span>
+    </div>
+  </div>
+</section>
+
+<div class="container"><div class="divider-fade"></div></div>
+
+<!-- ============ WHY CHOOSE US ============ -->
+<section class="section-pad" id="solutions">
+  <div class="container">
+    <div class="text-center mb-5" data-aos="fade-up">
+      <span class="section-eyebrow">Why Choose Us</span>
+      <h2 class="section-title mx-auto">Stop Managing Software. <br class="d-none d-md-block">Start Talking to Your Business.</h2>
+    </div>
+    <div class="row g-4">
+      <div class="col-lg-6" data-aos="fade-right">
+        <div class="compare-card old h-100">
+          <h5 class="mb-4"><i class="fa-solid fa-database me-2 text-faint"></i>Traditional ERP</h5>
+          <ul class="compare-list list-unstyled">
+            <li><i class="fa-solid fa-xmark text-danger"></i> Complicated setup and configuration</li>
+            <li><i class="fa-solid fa-xmark text-danger"></i> Dozens of confusing menus</li>
+            <li><i class="fa-solid fa-xmark text-danger"></i> No built-in intelligence</li>
+            <li><i class="fa-solid fa-xmark text-danger"></i> Manual, static reports</li>
+            <li><i class="fa-solid fa-xmark text-danger"></i> Difficult, dated navigation</li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-lg-6" data-aos="fade-left">
+        <div class="compare-card new h-100">
+          <h5 class="mb-4"><i class="fa-solid fa-brain me-2" style="color:var(--accent)"></i>RabssCore AI</h5>
+          <ul class="compare-list list-unstyled">
+            <li><i class="fa-solid fa-check up"></i> AI-first from the ground up</li>
+            <li><i class="fa-solid fa-check up"></i> Chat with your entire business</li>
+            <li><i class="fa-solid fa-check up"></i> Predict future sales and demand</li>
+            <li><i class="fa-solid fa-check up"></i> Automate workflows end-to-end</li>
+            <li><i class="fa-solid fa-check up"></i> Smart, auto-generated reports</li>
+            <li><i class="fa-solid fa-check up"></i> Run tasks with natural language</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FEATURES ============ -->
+<section class="section-pad" id="features">
+  <div class="container">
+    <div class="text-center mb-5" data-aos="fade-up">
+      <span class="section-eyebrow">Everything Included</span>
+      <h2 class="section-title mx-auto">One Platform. Every Department.</h2>
+      <p class="section-sub mx-auto">Every module your business needs, connected by a single AI layer that understands all of it.</p>
+    </div>
+    <div class="row g-4" id="featureGrid"></div>
+  </div>
+</section>
+
+<!-- ============ AI COPILOT ============ -->
+<section class="section-pad" id="copilot">
+  <div class="container">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-5" data-aos="fade-right">
+        <span class="section-eyebrow">AI Business Copilot</span>
+        <h2 class="section-title">Just Tell It What You Need.</h2>
+        <p class="section-sub mb-4">No forms. No menus. Your AI copilot understands plain language and executes across every module — instantly.</p>
+        <div class="d-flex flex-column gap-3">
+          <div class="d-flex gap-3">
+            <div class="feature-icon" style="margin-bottom:0;flex-shrink:0;"><i class="fa-solid fa-bolt"></i></div>
+            <div><h6 class="mb-1" style="font-weight:600;">Instant Execution</h6><p class="text-dim mb-0" style="font-size:13.5px;">Creates records, sends emails, and updates inventory in one command.</p></div>
+          </div>
+          <div class="d-flex gap-3">
+            <div class="feature-icon" style="margin-bottom:0;flex-shrink:0;"><i class="fa-solid fa-chart-line"></i></div>
+            <div><h6 class="mb-1" style="font-weight:600;">Predictive Insight</h6><p class="text-dim mb-0" style="font-size:13.5px;">Forecasts revenue and flags risks before they happen.</p></div>
+          </div>
+          <div class="d-flex gap-3">
+            <div class="feature-icon" style="margin-bottom:0;flex-shrink:0;"><i class="fa-solid fa-comments"></i></div>
+            <div><h6 class="mb-1" style="font-weight:600;">Natural Language</h6><p class="text-dim mb-0" style="font-size:13.5px;">Type or speak commands like you would to a real employee.</p></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-7" data-aos="fade-left">
+        <div class="copilot-wrap">
+          <div class="copilot-head">
+            <div class="brand-mark" style="width:32px;height:32px;font-size:12px;"><img src="assets/images/logo.png" alt="RabssCore AI Logo"></div>
+            <div>
+              <div style="font-weight:600;font-size:14.5px;">Business Copilot</div>
+              <div style="font-size:11.5px;color:var(--success);"><i class="fa-solid fa-circle" style="font-size:6px;"></i> Online</div>
+            </div>
+          </div>
+          <div class="copilot-body" id="chatBody">
+            <div class="chat-bubble chat-user">Create quotation for Everest Traders</div>
+            <div class="chat-bubble chat-ai">
+              <div class="step"><i class="fa-solid fa-circle-check"></i> Quotation created successfully</div>
+              <div class="step"><i class="fa-solid fa-circle-check"></i> Email sent to client</div>
+              <div class="step"><i class="fa-solid fa-circle-check"></i> Inventory checked and reserved</div>
+              <div class="step"><i class="fa-solid fa-circle-check"></i> Follow-up reminder scheduled</div>
+            </div>
+            <div class="chat-bubble chat-user">Show overdue invoices</div>
+            <div class="chat-bubble chat-ai">You have <strong>7 overdue invoices</strong> totaling NPR 842,000. The largest is from Sagarmatha Retail, 12 days overdue. Want me to send reminders?</div>
+            <div class="chat-bubble chat-user">Predict next month's revenue</div>
+            <div class="chat-bubble chat-ai">Based on current pipeline and seasonal trends, next month's revenue is projected at <strong>NPR 21.2M</strong> (+15%).</div>
+          </div>
+          <div class="copilot-input">
+            <i class="fa-solid fa-microphone text-faint"></i>
+            <input type="text" placeholder="Ask RabssCore AI to do anything...">
+            <button class="copilot-send"><i class="fa-solid fa-arrow-up"></i></button>
+          </div>
+        </div>
+        <div class="d-flex flex-wrap gap-2 mt-3">
+          <span class="suggest-chip">Create quotation</span>
+          <span class="suggest-chip">Check low stock items</span>
+          <span class="suggest-chip">Generate payroll report</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CUSTOMIZATION ============ -->
+<section class="section-pad" id="customization">
+  <div class="container">
+    <div class="text-center mb-5" data-aos="fade-up">
+      <span class="section-eyebrow">Built Around You</span>
+      <h2 class="section-title mx-auto">Your Business.<br>Your Workflow.<br><span class="gradient-text">Your Software.</span></h2>
+      <p class="section-sub mx-auto">Every business works differently. RabssCore AI is customized to match each client's exact business process — not the other way around.</p>
+    </div>
+    <div class="row g-3" id="industryGrid"></div>
+  </div>
+</section>
+
+<!-- ============ WHY CUSTOMIZATION MATTERS ============ -->
+<section class="section-pad pt-0">
+  <div class="container">
+    <div class="cta-banner" data-aos="zoom-in" style="padding:60px 40px;">
+      <div class="row justify-content-center">
+        <div class="col-lg-8 text-center">
+          <i class="fa-solid fa-quote-left" style="font-size:28px;color:var(--accent);opacity:.5;"></i>
+          <h3 class="section-title mt-3">Instead of changing your business to fit the software, we customize RabssCore AI to fit your business.</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRICING ============ -->
+<section class="section-pad" id="pricing">
+  <div class="container">
+    <div class="text-center mb-5" data-aos="fade-up">
+      <span class="section-eyebrow">Pricing</span>
+      <h2 class="section-title mx-auto">Simple Plans That Scale With You</h2>
+      <p class="section-sub mx-auto">Start small, grow into the full AI operating system. All prices are billed monthly.</p>
+    </div>
+    <div class="row g-4">
+      <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="0">
+        <div class="price-card h-100">
+          <h6 class="text-faint text-uppercase" style="font-size:12px;letter-spacing:.08em;">Starter</h6>
+          <p class="text-dim mb-3" style="font-size:13.5px;">Perfect for startups</p>
+          <div class="price-amt">NPR 1,999<small>/month</small></div>
+          <ul class="price-feat">
+            <li><i class="fa-solid fa-check"></i> AI Assistant</li>
+            <li><i class="fa-solid fa-check"></i> CRM</li>
+            <li><i class="fa-solid fa-check"></i> Leads</li>
+            <li><i class="fa-solid fa-check"></i> Contacts</li>
+            <li><i class="fa-solid fa-check"></i> Companies</li>
+            <li><i class="fa-solid fa-check"></i> Tasks</li>
+            <li><i class="fa-solid fa-check"></i> Email Support</li>
+          </ul>
+          <a href="#trial" class="btn-outline-glow w-100 text-center d-block">Start Free Trial</a>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
+        <div class="price-card popular h-100">
+          <span class="popular-badge">Most Popular</span>
+          <h6 class="text-faint text-uppercase" style="font-size:12px;letter-spacing:.08em;">Professional</h6>
+          <p class="text-dim mb-3" style="font-size:13.5px;">For growing teams</p>
+          <div class="price-amt">NPR 4,999<small>/month</small></div>
+          <ul class="price-feat">
+            <li><i class="fa-solid fa-check"></i> Everything in Starter</li>
+            <li><i class="fa-solid fa-check"></i> Inventory</li>
+            <li><i class="fa-solid fa-check"></i> Invoices</li>
+            <li><i class="fa-solid fa-check"></i> Quotations</li>
+            <li><i class="fa-solid fa-check"></i> Reports & Dashboard</li>
+            <li><i class="fa-solid fa-check"></i> Automation</li>
+            <li><i class="fa-solid fa-check"></i> Priority Support</li>
+          </ul>
+          <a href="#trial" class="btn-primary-glow w-100 text-center d-block">Start Free Trial</a>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="200">
+        <div class="price-card h-100">
+          <h6 class="text-faint text-uppercase" style="font-size:12px;letter-spacing:.08em;">Business</h6>
+          <p class="text-dim mb-3" style="font-size:13.5px;">For established companies</p>
+          <div class="price-amt">NPR 9,999<small>/month</small></div>
+          <ul class="price-feat">
+            <li><i class="fa-solid fa-check"></i> Everything in Professional</li>
+            <li><i class="fa-solid fa-check"></i> HR & Payroll</li>
+            <li><i class="fa-solid fa-check"></i> Projects</li>
+            <li><i class="fa-solid fa-check"></i> Customer Portal</li>
+            <li><i class="fa-solid fa-check"></i> Advanced AI</li>
+            <li><i class="fa-solid fa-check"></i> API Access</li>
+            <li><i class="fa-solid fa-check"></i> Unlimited Users</li>
+          </ul>
+          <a href="#trial" class="btn-outline-glow w-100 text-center d-block">Start Free Trial</a>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
+        <div class="price-card h-100">
+          <h6 class="text-faint text-uppercase" style="font-size:12px;letter-spacing:.08em;">Enterprise</h6>
+          <p class="text-dim mb-3" style="font-size:13.5px;">Unlimited everything</p>
+          <div class="price-amt" style="font-size:1.9rem;">Custom Pricing</div>
+          <ul class="price-feat">
+            <li><i class="fa-solid fa-check"></i> Unlimited Everything</li>
+            <li><i class="fa-solid fa-check"></i> Dedicated Server</li>
+            <li><i class="fa-solid fa-check"></i> White Label</li>
+            <li><i class="fa-solid fa-check"></i> Custom Modules</li>
+            <li><i class="fa-solid fa-check"></i> Dedicated Account Manager</li>
+            <li><i class="fa-solid fa-check"></i> Premium Support</li>
+          </ul>
+          <a href="#contact" class="btn-outline-glow w-100 text-center d-block">Contact Sales</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CUSTOMIZATION PRICING ============ -->
+<section class="section-pad pt-0">
+  <div class="container">
+    <div class="text-center mb-5" data-aos="fade-up">
+      <span class="section-eyebrow">One-Time Custom Development</span>
+      <h2 class="section-title mx-auto">Need Something Built Just for You?</h2>
+      <p class="section-sub mx-auto">Pricing depends on complexity, integrations, and scope. These are starting estimates — every project begins with a free requirement analysis.</p>
+    </div>
+    <div class="row g-4 mb-5">
+      <div class="col-md-4" data-aos="fade-up">
+        <div class="custom-dev-card h-100">
+          <div class="badge-num">S</div>
+          <h5 style="font-weight:600;">Small Module</h5>
+          <div class="price-amt" style="font-size:1.6rem;margin:10px 0;">Starting NPR 25,000</div>
+          <p class="text-dim" style="font-size:13.5px;">A single custom feature or integration added to your existing setup.</p>
+        </div>
+      </div>
+      <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+        <div class="custom-dev-card h-100">
+          <div class="badge-num">M</div>
+          <h5 style="font-weight:600;">Medium Customization</h5>
+          <div class="price-amt" style="font-size:1.6rem;margin:10px 0;">Starting NPR 75,000</div>
+          <p class="text-dim" style="font-size:13.5px;">Multiple modules customized to match your specific business workflow.</p>
+        </div>
+      </div>
+      <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+        <div class="custom-dev-card h-100">
+          <div class="badge-num">E</div>
+          <h5 style="font-weight:600;">Enterprise Customization</h5>
+          <div class="price-amt" style="font-size:1.6rem;margin:10px 0;">Starting NPR 200,000</div>
+          <p class="text-dim" style="font-size:13.5px;">A fully tailored operating system built around your entire organization.</p>
+        </div>
+      </div>
+    </div>
+    <div class="row g-3 justify-content-center text-center" data-aos="fade-up">
+      <div class="col-6 col-md-3 col-lg-1"><i class="fa-solid fa-magnifying-glass-chart" style="color:var(--accent)"></i><div style="font-size:12px;color:var(--text-faint);margin-top:6px;">Analysis</div></div>
+      <div class="col-6 col-md-3 col-lg-1"><i class="fa-solid fa-pen-ruler" style="color:var(--accent)"></i><div style="font-size:12px;color:var(--text-faint);margin-top:6px;">UI Design</div></div>
+      <div class="col-6 col-md-3 col-lg-1"><i class="fa-solid fa-code" style="color:var(--accent)"></i><div style="font-size:12px;color:var(--text-faint);margin-top:6px;">Development</div></div>
+      <div class="col-6 col-md-3 col-lg-1"><i class="fa-solid fa-vial" style="color:var(--accent)"></i><div style="font-size:12px;color:var(--text-faint);margin-top:6px;">Testing</div></div>
+      <div class="col-6 col-md-3 col-lg-1"><i class="fa-solid fa-rocket" style="color:var(--accent)"></i><div style="font-size:12px;color:var(--text-faint);margin-top:6px;">Deployment</div></div>
+      <div class="col-6 col-md-3 col-lg-1"><i class="fa-solid fa-chalkboard-user" style="color:var(--accent)"></i><div style="font-size:12px;color:var(--text-faint);margin-top:6px;">Training</div></div>
+      <div class="col-6 col-md-3 col-lg-1"><i class="fa-solid fa-file-lines" style="color:var(--accent)"></i><div style="font-size:12px;color:var(--text-faint);margin-top:6px;">Docs</div></div>
+      <div class="col-6 col-md-3 col-lg-1"><i class="fa-solid fa-headset" style="color:var(--accent)"></i><div style="font-size:12px;color:var(--text-faint);margin-top:6px;">Support</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ AI AUTOMATION WORKFLOW ============ -->
+<section class="section-pad">
+  <div class="container">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-5" data-aos="fade-right">
+        <span class="section-eyebrow">AI Automation</span>
+        <h2 class="section-title">Watch a Sale Happen Automatically.</h2>
+        <p class="section-sub">One customer inquiry triggers a full chain of actions — no manual steps, no missed follow-ups.</p>
+      </div>
+      <div class="col-lg-7" data-aos="fade-left">
+        <div class="workflow-track">
+          <div class="workflow-step active"><h6><i class="fa-solid fa-message me-2 text-dim"></i>Customer Inquiry Received</h6><p>A message arrives from a customer via WhatsApp, email, or web form.</p></div>
+          <div class="workflow-step"><h6><i class="fa-solid fa-brain me-2 text-dim"></i>AI Understands Intent</h6><p>Natural language processing identifies what the customer needs.</p></div>
+          <div class="workflow-step"><h6><i class="fa-solid fa-file-invoice me-2 text-dim"></i>Creates Quotation</h6><p>A quotation is drafted instantly using live pricing rules.</p></div>
+          <div class="workflow-step"><h6><i class="fa-solid fa-boxes-stacked me-2 text-dim"></i>Checks Inventory</h6><p>Stock availability is verified across all warehouses.</p></div>
+          <div class="workflow-step"><h6><i class="fa-solid fa-receipt me-2 text-dim"></i>Creates Invoice</h6><p>An invoice is generated once the quote is approved.</p></div>
+          <div class="workflow-step"><h6><i class="fa-solid fa-paper-plane me-2 text-dim"></i>Emails Customer</h6><p>The invoice and confirmation are sent automatically.</p></div>
+          <div class="workflow-step"><h6><i class="fa-solid fa-calendar-check me-2 text-dim"></i>Schedules Follow-up</h6><p>A reminder is placed on the sales team's calendar.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TESTIMONIALS ============ -->
+<section class="section-pad" id="testimonials">
+  <div class="container">
+    <div class="text-center mb-5" data-aos="fade-up">
+      <span class="section-eyebrow">Testimonials</span>
+      <h2 class="section-title mx-auto">Loved by Business Owners</h2>
+    </div>
+    <div class="row g-4" id="testimonialGrid"></div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section class="section-pad" id="faq">
+  <div class="container">
+    <div class="text-center mb-5" data-aos="fade-up">
+      <span class="section-eyebrow">FAQ</span>
+      <h2 class="section-title mx-auto">Frequently Asked Questions</h2>
+    </div>
+    <div class="row justify-content-center">
+      <div class="col-lg-9">
+        <div class="accordion" id="faqAccordion"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CTA ============ -->
+<section class="section-pad" id="trial">
+  <div class="container">
+    <div class="cta-banner" data-aos="zoom-in">
+      <h2 class="section-title mx-auto" style="max-width:700px;">Ready to Run Your Business with AI?</h2>
+      <p class="section-sub mx-auto mb-4">Join thousands of businesses who traded spreadsheets and static software for an AI employee that never sleeps.</p>
+      <div class="d-flex justify-content-center gap-3 flex-wrap">
+        <a href="#trial" class="btn-primary-glow">Start Free Trial</a>
+        <a href="#demo" class="btn-outline-glow">Book Demo</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer id="contact">
+  <div class="container">
+    <div class="row g-5 mb-5">
+      <div class="col-lg-4">
+        <div class="d-flex align-items-center gap-2 mb-3" style="align-items: center;">
+          <span class="brand-mark" style="flex-shrink: 0;"><img src="assets/images/logo.png" alt="RabssCore AI Logo"></span>
+          <span class="brand-name">RabssCore AI</span>
+        </div>
+        <p class="text-faint" style="font-size:14px;line-height:1.7;max-width:300px;">The AI Employee that runs CRM, Sales, Finance, Inventory, HR and Projects — all from one intelligent operating system.</p>
+        <div class="d-flex gap-2 mt-3">
+          <a href="#" class="social-icon"><i class="fa-brands fa-facebook-f"></i></a>
+          <a href="#" class="social-icon"><i class="fa-brands fa-x-twitter"></i></a>
+          <a href="#" class="social-icon"><i class="fa-brands fa-linkedin-in"></i></a>
+          <a href="#" class="social-icon"><i class="fa-brands fa-instagram"></i></a>
+        </div>
+      </div>
+      <div class="col-lg-2 col-6">
+        <div class="footer-title">Company</div>
+        <ul class="footer-links list-unstyled">
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Press Kit</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-2 col-6">
+        <div class="footer-title">Resources</div>
+        <ul class="footer-links list-unstyled">
+          <li><a href="#">Documentation</a></li>
+          <li><a href="#">API Reference</a></li>
+          <li><a href="#">Case Studies</a></li>
+          <li><a href="#">Changelog</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-2 col-6">
+        <div class="footer-title">Support</div>
+        <ul class="footer-links list-unstyled">
+          <li><a href="#">Help Center</a></li>
+          <li><a href="#">Contact Support</a></li>
+          <li><a href="#">System Status</a></li>
+          <li><a href="#faq">FAQ</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-2 col-6">
+        <div class="footer-title">Legal</div>
+        <ul class="footer-links list-unstyled">
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Service</a></li>
+          <li><a href="#">Security</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="glow-divider mb-4"></div>
+    <div class="row align-items-center g-4">
+      <div class="col-md-6">
+        <p class="text-faint mb-0" style="font-size:13px;">© 2026 RabssCore AI. All rights reserved.</p>
+      </div>
+      <div class="col-md-6">
+        <div class="d-flex justify-content-md-end">
+          <input type="email" class="newsletter-input" placeholder="Your work email" style="max-width:220px;">
+          <button class="btn-primary-glow" style="border-radius:0 12px 12px 0;">Subscribe</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ============ SCRIPTS ============ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+
+<script>
+/* ============ DATA: FEATURES ============ */
+const features = [
+  {icon:'fa-users-gear', title:'CRM', desc:'Manage every customer relationship from first contact to lifelong client.'},
+  {icon:'fa-chart-line', title:'Sales', desc:'Track pipelines, close deals faster, and forecast revenue with AI.'},
+  {icon:'fa-building', title:'Companies', desc:'A single source of truth for every business account you work with.'},
+  {icon:'fa-address-book', title:'Contacts', desc:'Centralize every contact with full interaction history attached.'},
+  {icon:'fa-user-plus', title:'Leads', desc:'Capture, score, and route leads automatically to the right rep.'},
+  {icon:'fa-file-signature', title:'Quotations', desc:'Generate branded quotations in seconds, approved by AI pricing rules.'},
+  {icon:'fa-file-invoice-dollar', title:'Invoices', desc:'Create, send, and reconcile invoices without lifting a finger.'},
+  {icon:'fa-boxes-stacked', title:'Inventory', desc:'Real-time stock tracking across every location, automatically reordered.'},
+  {icon:'fa-warehouse', title:'Warehouse', desc:'Manage receiving, picking, and dispatch from a unified warehouse view.'},
+  {icon:'fa-id-badge', title:'HR', desc:'Onboard, manage, and support your entire workforce in one place.'},
+  {icon:'fa-money-check-dollar', title:'Payroll', desc:'Run accurate payroll automatically, every cycle, with zero errors.'},
+  {icon:'fa-clock', title:'Attendance', desc:'Track attendance and leave with biometric and mobile check-ins.'},
+  {icon:'fa-diagram-project', title:'Projects', desc:'Plan, assign, and deliver projects with AI-suggested timelines.'},
+  {icon:'fa-list-check', title:'Tasks', desc:'Break work into tasks the AI can track, nudge, and complete for you.'},
+  {icon:'fa-headset', title:'Customer Support', desc:'Resolve tickets faster with AI-suggested responses and routing.'},
+  {icon:'fa-book-open', title:'Knowledge Base', desc:'A searchable library that keeps your whole team aligned.'},
+  {icon:'fa-chart-pie', title:'Analytics', desc:'Beautiful dashboards that turn raw data into clear decisions.'},
+  {icon:'fa-gears', title:'Workflow Automation', desc:'Automate repetitive processes across every department.'},
+  {icon:'fa-folder-open', title:'Document Management', desc:'Store, tag, and retrieve every business document instantly.'},
+  {icon:'fa-calendar-days', title:'Calendar', desc:'One shared calendar synced across your entire organization.'},
+  {icon:'fa-bell', title:'Notifications', desc:'Stay informed with smart alerts that filter out the noise.'},
+  {icon:'fa-gauge-high', title:'Business Dashboard', desc:'A live command center for every metric that matters.'},
+  {icon:'fa-robot', title:'AI Business Copilot', desc:'The intelligence layer that connects and operates every module.'},
+];
+const featureGrid = document.getElementById('featureGrid');
+features.forEach((f,i)=>{
+  featureGrid.insertAdjacentHTML('beforeend', `
+    <div class="col-xl-3 col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="${(i%4)*80}">
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fa-solid ${f.icon}"></i></div>
+        <h5>${f.title}</h5>
+        <p>${f.desc}</p>
+      </div>
+    </div>`);
+});
+
+/* ============ DATA: INDUSTRIES ============ */
+const industries = [
+  ['fa-hospital','Hospital'],['fa-school','School'],['fa-helmet-safety','Construction'],
+  ['fa-industry','Manufacturing'],['fa-bed','Hotel'],['fa-utensils','Restaurant'],
+  ['fa-store','Retail'],['fa-house','Real Estate'],['fa-truck-ramp-box','Wholesale'],
+  ['fa-truck-field','Distribution'],['fa-hand-holding-heart','NGO'],['fa-plane-departure','Travel Agency'],
+  ['fa-truck-fast','Logistics'],['fa-prescription-bottle-medical','Pharmacy'],['fa-stethoscope','Clinic'],
+  ['fa-sack-dollar','Finance'],['fa-shield-heart','Insurance'],['fa-ship','Import Export'],
+];
+const industryGrid = document.getElementById('industryGrid');
+industries.forEach(([icon,name],i)=>{
+  industryGrid.insertAdjacentHTML('beforeend', `
+    <div class="col-6 col-md-4 col-lg-2" data-aos="zoom-in" data-aos-delay="${(i%6)*60}">
+      <div class="industry-card"><i class="fa-solid ${icon}"></i><span>${name}</span></div>
+    </div>`);
+});
+
+/* ============ DATA: TESTIMONIALS ============ */
+const testimonials = [
+  {name:'Rajesh Shrestha', company:'Everest Traders', text:'RabssCore AI replaced four separate tools we were juggling. The AI copilot alone saves our sales team hours every single day.', rating:5},
+  {name:'Anita Gurung', company:'Himal Group', text:'We asked for a hospital-specific setup and got exactly that. It genuinely feels built for our business, not the other way around.', rating:5},
+  {name:'Bikash Thapa', company:'Sagarmatha Retail', text:'The predictive revenue forecasting has been eerily accurate. We now restock before we run out, not after.', rating:5},
+  {name:'Sunita Rai', company:'Kathford Manufacturing', text:'Our finance team went from three days of manual reporting to a live dashboard that updates itself.', rating:4},
+  {name:'Prakash Adhikari', company:'Annapurna Health', text:'Support was fast, onboarding was smooth, and the AI actually understands our terminology.', rating:5},
+  {name:'Nisha Karki', company:'Lumbini Travels', text:'Customers get quotations within minutes of inquiry. Our conversion rate has never been higher.', rating:5},
+];
+const testiGrid = document.getElementById('testimonialGrid');
+testimonials.forEach((t,i)=>{
+  const initials = t.name.split(' ').map(w=>w[0]).join('');
+  const stars = Array.from({length:5},(_,i)=>`<i class="fa-solid fa-star${i<t.rating?'':' text-faint'}"></i>`).join('');
+  testiGrid.insertAdjacentHTML('beforeend', `
+    <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="${(i%3)*80}">
+      <div class="testi-card">
+        <div class="testi-stars">${stars}</div>
+        <p class="testi-quote">"${t.text}"</p>
+        <div class="d-flex align-items-center gap-3">
+          <div class="testi-avatar">${initials}</div>
+          <div>
+            <div style="font-weight:600;font-size:14px;">${t.name}</div>
+            <div class="text-faint" style="font-size:12.5px;">${t.company}</div>
+          </div>
+        </div>
+      </div>
+    </div>`);
+});
+
+/* ============ DATA: FAQ ============ */
+const faqs = [
+  ['Is RabssCore AI suitable for small businesses?','Yes. The Starter plan is designed for startups and small teams, and you can scale up to Professional or Business as you grow without migrating data.'],
+  ['Can RabssCore AI be customized for my specific industry?','Absolutely. We offer one-time custom development for industries like hospitals, hotels, manufacturing, and more, tailored to your exact workflow.'],
+  ['How does the AI Copilot actually work?','You type or speak a request in plain language. The AI interprets your intent and executes the required actions across CRM, inventory, finance, and more.'],
+  ['Is my business data secure?','Yes. All data is encrypted in transit and at rest, with role-based access control and regular security audits.'],
+  ['Can I switch plans later?','Yes, you can upgrade or downgrade your plan at any time from your account settings with no penalty.'],
+  ['Do you offer a free trial?','Yes, every plan includes a free trial period so you can test the platform before committing.'],
+  ['What happens to my data if I cancel?','You retain full export access to your data for 90 days after cancellation.'],
+  ['Does RabssCore AI integrate with other tools?','Yes, we support integrations with common accounting, payment, and communication tools, plus a full API on Business and Enterprise plans.'],
+  ['How long does custom development take?','Small modules typically take 1–2 weeks, medium customizations 3–5 weeks, and enterprise builds 6–12 weeks depending on scope.'],
+  ['Is training included?','Yes. All custom development packages include onboarding training and documentation for your team.'],
+  ['Can RabssCore AI handle multiple locations or branches?','Yes, multi-branch and multi-warehouse support is available from the Professional plan upward.'],
+  ['What kind of support do you offer?','Email support on Starter, priority support on Professional and Business, and a dedicated account manager on Enterprise.'],
+];
+const faqAccordion = document.getElementById('faqAccordion');
+faqs.forEach((f,i)=>{
+  faqAccordion.insertAdjacentHTML('beforeend', `
+    <div class="accordion-item" data-aos="fade-up" data-aos-delay="${(i%4)*40}">
+      <h2 class="accordion-header">
+        <button class="accordion-button ${i!==0?'collapsed':''}" type="button" data-bs-toggle="collapse" data-bs-target="#faq${i}">
+          ${f[0]}
+        </button>
+      </h2>
+      <div id="faq${i}" class="accordion-collapse collapse ${i===0?'show':''}" data-bs-parent="#faqAccordion">
+        <div class="accordion-body">${f[1]}</div>
+      </div>
+    </div>`);
+});
+
+/* ============ LOADER ============ */
+window.addEventListener('load', ()=>{
+  setTimeout(()=>{ document.getElementById('loader').classList.add('hide'); }, 900);
+});
+
+/* ============ AOS INIT ============ */
+AOS.init({ once:true, offset:60, duration:700, easing:'ease-out-cubic' });
+
+/* ============ NAVBAR SCROLL STATE ============ */
+const nav = document.getElementById('mainNav');
+window.addEventListener('scroll', ()=>{
+  nav.classList.toggle('scrolled', window.scrollY > 30);
+});
+
+/* ============ SCROLL PROGRESS BAR ============ */
+const progressBar = document.getElementById('scrollProgress');
+window.addEventListener('scroll', ()=>{
+  const h = document.documentElement;
+  const scrolled = (h.scrollTop) / (h.scrollHeight - h.clientHeight) * 100;
+  progressBar.style.width = scrolled + '%';
+});
+
+/* ============ CURSOR GLOW ============ */
+const glow = document.getElementById('cursorGlow');
+window.addEventListener('mousemove', (e)=>{
+  glow.style.left = e.clientX + 'px';
+  glow.style.top = e.clientY + 'px';
+});
+
+/* ============ MOUSE PARALLAX ON HERO BLOBS ============ */
+document.addEventListener('mousemove', (e)=>{
+  const x = (e.clientX / window.innerWidth - 0.5);
+  const y = (e.clientY / window.innerHeight - 0.5);
+  gsap.to('.blob1', {x: x*40, y: y*30, duration:1.2, overwrite:'auto'});
+  gsap.to('.blob2', {x: x*-30, y: y*40, duration:1.2, overwrite:'auto'});
+  gsap.to('.blob3', {x: x*25, y: y*-25, duration:1.2, overwrite:'auto'});
+});
+
+/* ============ BACKGROUND PARTICLES ============ */
+const particleContainer = document.getElementById('particles');
+for(let i=0;i<40;i++){
+  const p = document.createElement('div');
+  p.className = 'particle';
+  const size = Math.random()*3+1;
+  p.style.width = size+'px';
+  p.style.height = size+'px';
+  p.style.left = Math.random()*100+'%';
+  p.style.bottom = '-20px';
+  p.style.animationDuration = (Math.random()*14+12)+'s';
+  p.style.animationDelay = (Math.random()*14)+'s';
+  particleContainer.appendChild(p);
+}
+
+/* ============ ANIMATED COUNTERS ============ */
+const counters = document.querySelectorAll('.counter');
+const counterObserver = new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      const el = entry.target;
+      const target = +el.dataset.target;
+      let count = 0;
+      const step = Math.max(target/60,1);
+      const tick = ()=>{
+        count += step;
+        if(count < target){
+          el.textContent = Math.floor(count).toLocaleString();
+          requestAnimationFrame(tick);
+        } else { el.textContent = target.toLocaleString(); }
+      };
+      tick();
+      counterObserver.unobserve(el);
+    }
+  });
+},{threshold:0.5});
+counters.forEach(c=>counterObserver.observe(c));
+
+/* ============ HERO CHART ============ */
+const ctx = document.getElementById('heroChart');
+new Chart(ctx, {
+  type:'line',
+  data:{
+    labels:['Feb','Mar','Apr','May','Jun','Jul'],
+    datasets:[{
+      data:[9.2,10.8,12.1,14.6,16.3,18.4],
+      borderColor:'#06B6D4',
+      borderWidth:2.5,
+      pointRadius:0,
+      tension:.45,
+      fill:true,
+      backgroundColor:(ctx)=>{
+        const g = ctx.chart.ctx.createLinearGradient(0,0,0,90);
+        g.addColorStop(0,'rgba(6,182,212,.35)');
+        g.addColorStop(1,'rgba(6,182,212,0)');
+        return g;
+      }
+    }]
+  },
+  options:{
+    responsive:true,
+    plugins:{legend:{display:false},tooltip:{enabled:false}},
+    scales:{
+      x:{display:false},
+      y:{display:false}
+    },
+    elements:{point:{radius:0}}
+  }
+});
+
+/* ============ SMOOTH SCROLL FOR ANCHORS ============ */
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click', function(e){
+    const id = this.getAttribute('href');
+    if(id.length>1){
+      const target = document.querySelector(id);
+      if(target){
+        e.preventDefault();
+        window.scrollTo({top: target.offsetTop-80, behavior:'smooth'});
+        // collapse mobile menu if open
+        const menu = document.getElementById('navMenu');
+        if(menu.classList.contains('show')){
+          bootstrap.Collapse.getInstance(menu)?.hide();
+        }
+      }
+    }
+  });
+});
+
+/* ============ COPILOT INPUT DEMO ============ */
+document.querySelector('.copilot-send').addEventListener('click', ()=>{
+  const input = document.querySelector('.copilot-input input');
+  if(!input.value.trim()) return;
+  const chatBody = document.getElementById('chatBody');
+  const bubble = document.createElement('div');
+  bubble.className = 'chat-bubble chat-user';
+  bubble.textContent = input.value;
+  chatBody.appendChild(bubble);
+  chatBody.scrollTop = chatBody.scrollHeight;
+  input.value = '';
+  setTimeout(()=>{
+    const reply = document.createElement('div');
+    reply.className = 'chat-bubble chat-ai';
+    reply.textContent = "On it — I'm processing that across the relevant modules now.";
+    chatBody.appendChild(reply);
+    chatBody.scrollTop = chatBody.scrollHeight;
+  }, 700);
+});
+document.querySelectorAll('.suggest-chip').forEach(chip=>{
+  chip.addEventListener('click', ()=>{
+    document.querySelector('.copilot-input input').value = chip.textContent;
+  });
+});
+</script>
+</body>
+</html>
